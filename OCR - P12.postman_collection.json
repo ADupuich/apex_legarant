@@ -1,0 +1,475 @@
+{
+	"info": {
+		"_postman_id": "2a5c8537-5c01-451e-93a7-aeab0f1b9396",
+		"name": "OCR - P12",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Limits",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Visualizer that renders a Chart.js graph with the Salesforce API limits consumption\r",
+							"const template = `<script src=\"https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js\"></script>\r",
+							"<canvas id=\"myChart\" width=\"400\" height=\"800\"></canvas>\r",
+							"<script>\r",
+							"pm.getData((err, chartData) => {\r",
+							"    const getTooltipFooter = (tooltipItems) => {\r",
+							"        const index = tooltipItems[0].dataIndex;\r",
+							"        return 'Consumed '+ chartData.consumed[index] +' out of '+ chartData.max[index];\r",
+							"    };\r",
+							"\r",
+							"    const ctx = document.getElementById('myChart').getContext('2d');\r",
+							"    const myChart = new Chart(ctx, {\r",
+							"        type: 'bar',\r",
+							"        data: {\r",
+							"            labels: chartData.labels,\r",
+							"            datasets: [\r",
+							"                {\r",
+							"                    label: '% Consumed',\r",
+							"                    data: chartData.consumedPercent,\r",
+							"                    backgroundColor: 'rgba(255, 99, 132, 1)',\r",
+							"                    borderColor: 'rgba(255, 99, 132, 1)',\r",
+							"                    borderWidth: 1\r",
+							"                }\r",
+							"            ]\r",
+							"        },\r",
+							"        options: {\r",
+							"            indexAxis: 'y',\r",
+							"            responsive: true,\r",
+							"            scales: {\r",
+							"                x: {\r",
+							"                    beginAtZero: true,\r",
+							"                    ticks: {\r",
+							"                        callback: (value, index, values) => value + '%'\r",
+							"                    },\r",
+							"                    max: 100\r",
+							"                }\r",
+							"            },\r",
+							"            interaction: {\r",
+							"                intersect: false,\r",
+							"                mode: 'y'\r",
+							"            },\r",
+							"            plugins: {\r",
+							"                tooltip: {\r",
+							"                    callbacks: {\r",
+							"                        footer: getTooltipFooter,\r",
+							"                        label: (tooltipItems) => tooltipItems.raw + '%'\r",
+							"                    }\r",
+							"                },\r",
+							"                title: {\r",
+							"                    display: true,\r",
+							"                    text: 'API Limits Consumption'\r",
+							"                },\r",
+							"                legend: {\r",
+							"                    display: false\r",
+							"                }\r",
+							"            }\r",
+							"        }\r",
+							"    });\r",
+							"});\r",
+							"</script>`;\r",
+							"\r",
+							"// Format API response into chart data\r",
+							"const responseJson = pm.response.json();\r",
+							"const chartData = {\r",
+							"    labels: [],\r",
+							"    consumed: [],\r",
+							"    consumedPercent: [],\r",
+							"    max: []\r",
+							"};\r",
+							"Object.keys(responseJson).forEach((limitName) => {\r",
+							"    const { Max, Remaining } = responseJson[limitName];\r",
+							"    const consumed = Max - Remaining;\r",
+							"    let percent = 0;\r",
+							"    if (Max !== 0) {\r",
+							"        percent = (consumed / Max) * 100;\r",
+							"        percent = percent\r",
+							"            .toString()\r",
+							"            .match(/^-?\\d+(?:\\.\\d{0,2})?/)[0];\r",
+							"    }\r",
+							"    chartData.labels.push(limitName);\r",
+							"    chartData.consumed.push(consumed);\r",
+							"    chartData.consumedPercent.push(percent);\r",
+							"    chartData.max.push(Max);\r",
+							"});\r",
+							"// Render vizualizer\r",
+							"pm.visualizer.set(template, chartData);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true,
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{_endpoint}}/services/data/v{{version}}/limits",
+					"host": [
+						"{{_endpoint}}"
+					],
+					"path": [
+						"services",
+						"data",
+						"v{{version}}",
+						"limits"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Contact",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"FirstName\": \"Joe\",\r\n    \"LastName\": \"Tester\",\r\n    \"Email\" : \"test@gmail.com.invalide\",\r\n    \"Phone\" : \"+336123456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{_endpoint}}/services/apexrest/ContactManager/v1/",
+					"host": [
+						"{{_endpoint}}"
+					],
+					"path": [
+						"services",
+						"apexrest",
+						"ContactManager",
+						"v1",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Contact",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"FirstName\": \"Amautest\",\r\n    \"LastName\": \"Postman\",\r\n    \"Email\" : \"test@gmail.com.invalide\",\r\n    \"Phone\" : \"00000\"    \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{_endpoint}}/services/apexrest/ContactManager/v1/0037Q000006JBa9QAG",
+					"host": [
+						"{{_endpoint}}"
+					],
+					"path": [
+						"services",
+						"apexrest",
+						"ContactManager",
+						"v1",
+						"0037Q000006JBa9QAG"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{_endpoint}}/services/apexrest/ContactManager/v1/0037Q000006JBa9QAG",
+					"host": [
+						"{{_endpoint}}"
+					],
+					"path": [
+						"services",
+						"apexrest",
+						"ContactManager",
+						"v1",
+						"0037Q000006JBa9QAG"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Account",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Name\" : \"AccountJoeTester\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{_endpoint}}/services/apexrest/AccountManager/v1/",
+					"host": [
+						"{{_endpoint}}"
+					],
+					"path": [
+						"services",
+						"apexrest",
+						"AccountManager",
+						"v1",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Contract",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Name\":\"Contrat de Joe Tester\",\r\n    \"Status\" : \"Draft\", \r\n    \"AccountId\" : \"0017Q0000091i3NQAQ\", \r\n    \"StartDate\" : \"2022-03-20\",\r\n    \"ContractTerm\" : 12\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{_endpoint}}/services/apexrest/ContractManager/v1/",
+					"host": [
+						"{{_endpoint}}"
+					],
+					"path": [
+						"services",
+						"apexrest",
+						"ContractManager",
+						"v1",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Contract",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Name\":\"Contrat de Joe Tester\",\r\n    \"Status\" : \"Draft\", \r\n    \"AccountId\" : \"0017Q0000091i3NQAQ\", \r\n    \"StartDate\" : \"2022-03-20\",\r\n    \"ContractTerm\" : 15\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{_endpoint}}/services/apexrest/ContractManager/v1/8007Q00000096niQAA",
+					"host": [
+						"{{_endpoint}}"
+					],
+					"path": [
+						"services",
+						"apexrest",
+						"ContractManager",
+						"v1",
+						"8007Q00000096niQAA"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "scope",
+				"value": "",
+				"type": "string"
+			},
+			{
+				"key": "authUrl",
+				"value": "{{url}}{{site}}/services/oauth2/authorize",
+				"type": "string"
+			},
+			{
+				"key": "clientId",
+				"value": "{{clientId}}",
+				"type": "string"
+			},
+			{
+				"key": "useBrowser",
+				"value": true,
+				"type": "boolean"
+			},
+			{
+				"key": "grant_type",
+				"value": "implicit",
+				"type": "string"
+			},
+			{
+				"key": "client_authentication",
+				"value": "header",
+				"type": "string"
+			},
+			{
+				"key": "accessTokenUrl",
+				"value": "",
+				"type": "string"
+			},
+			{
+				"key": "clientSecret",
+				"value": "\n\n",
+				"type": "string"
+			},
+			{
+				"key": "tokenName",
+				"value": "access_token",
+				"type": "string"
+			},
+			{
+				"key": "challengeAlgorithm",
+				"value": "S256",
+				"type": "string"
+			},
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "https://login.salesforce.com",
+			"type": "string"
+		},
+		{
+			"key": "version",
+			"value": "53.0",
+			"type": "string"
+		},
+		{
+			"key": "username",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "password",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "secretToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "clientId",
+			"value": "3MVG9t0sl2P.pByqeMyqfu406IDJnLD89fx78DVisLAuYR7LNjnML9IHVnEoewi_KCGYV3qBoXNO9TCAlmMZl",
+			"type": "string"
+		},
+		{
+			"key": "clientSecret",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "redirectUrl",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "initAccessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "site",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "_accessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "_endpoint",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "_userId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "_orgId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "_jobId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "webstoreId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
